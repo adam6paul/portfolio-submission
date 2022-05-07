@@ -1,5 +1,148 @@
 ---
-title: "Portfolio 3"
+title: "Portfolio 3 - Study 1 Visualization"
+author: "Adam"
+date: "4/27/2022"
+output: html_document
 ---
 
-> The projects should be numbered consecutively (i.e., in the order in which you began them), and should include for each project a description of the goal, the product (computer program, hand graph, computer graph, etc.), the data, and some interpretation. Reports must be reproducible and of high quality in terms of writing, grammar, presentation, etc.
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The goal of this portfolio was to explore the experience of visualizations within R.
+
+#### Getting things working
+
+First, we need to load the necessary packages.
+
+```{r packages, echo=TRUE, message=FALSE}
+library('psych')
+library('reshape2')
+library('dplyr')
+library('lavaan')
+library('Rcpp')
+library('lme4')
+library('lmerTest')
+library('OpenMx')
+library('semPlot')
+library('tidyverse')
+library('Hmisc')
+library('readr')
+library('xtable')
+```
+
+
+Now, we have to bring in the data from portfolio 1.
+
+```{r loading data, echo=TRUE, collapse=TRUE, message=FALSE}
+study1 <- read_csv("data/Study1_data_R_cleaned.csv")
+
+# Ensuring the dataframe is a tibble.
+as_tibble(study1)
+
+#Taking a look at the table.
+View(study1)
+```
+
+
+### Correlation table
+
+Now, the first thing I want to do is learn how to make the correlation table a little less ugly. Because to be honest, the base output is not particularly readable. This is how it appeared in portfolio 2:
+
+I used a package called hmisc that conflicts with psych, so I had to load it to get it to work, then unload it manually later. Messy, but I understand how to work with hmisc so I'm sticking with it.
+
+The first thing the code does is create a subset that only has the variables we want to look at the correlations for.
+
+Then, it runs the correlations with p-values.
+
+
+```{r bivariate correlations}
+correlations <- study1 %>%
+        select(class_belong_comp4, school_belong_comp4, class_disclose_comp2, group_disclose_comp2, cdiscl_prompt_comp2, gdiscl_prompt_comp2)
+
+rcorr(as.matrix(correlations))
+    
+```
+
+It outputs the correlation, then the n, then the p value. Very unpleasant to look at. Let's see if we can't make it look better.
+
+The first thing we need to do is instead of just running the correlation we want to make it into an object so I can make adjustments to it.
+
+```{r correlation matrix, echo=TRUE, results='hide'}
+corr_matrix <- rcorr(as.matrix(correlations))
+
+corr_matrix
+```
+      
+Looks the same, but now the correlation matrix is an object I can manipulate.
+
+
+However, below is a function found online for creating an html table that is much better to look at (in html, at least).
+
+(https://www.r-bloggers.com/2017/08/elegant-correlation-table-using-xtable-r-package/)
+
+```{r corstars function}
+# x is a matrix containing the data
+# method : correlation method. "pearson"" or "spearman"" is supported
+# removeTriangle : remove upper or lower triangle
+# results :  if "html" or "latex"
+  # the results will be displayed in html or latex format
+corstars <-function(x, method=c("pearson", "spearman"), removeTriangle=c("upper", "lower"),
+                     result=c("none", "html", "latex")){
+    #Compute correlation matrix
+    require(Hmisc)
+    x <- as.matrix(x)
+    correlation_matrix<-rcorr(x, type=method[1])
+    R <- correlation_matrix$r # Matrix of correlation coeficients
+    p <- correlation_matrix$P # Matrix of p-value 
+    
+    ## Define notions for significance levels; spacing is important.
+    mystars <- ifelse(p < .0001, "****", ifelse(p < .001, "*** ", ifelse(p < .01, "**  ", ifelse(p < .05, "*   ", "    "))))
+    
+    ## trunctuate the correlation matrix to two decimal
+    R <- format(round(cbind(rep(-1.11, ncol(x)), R), 2))[,-1]
+    
+    ## build a new matrix that includes the correlations with their appropriate stars
+    Rnew <- matrix(paste(R, mystars, sep=""), ncol=ncol(x))
+    diag(Rnew) <- paste(diag(R), " ", sep="")
+    rownames(Rnew) <- colnames(x)
+    colnames(Rnew) <- paste(colnames(x), "", sep="")
+    
+    ## remove upper triangle of correlation matrix
+    if(removeTriangle[1]=="upper"){
+      Rnew <- as.matrix(Rnew)
+      Rnew[upper.tri(Rnew, diag = TRUE)] <- ""
+      Rnew <- as.data.frame(Rnew)
+    }
+    
+    ## remove lower triangle of correlation matrix
+    else if(removeTriangle[1]=="lower"){
+      Rnew <- as.matrix(Rnew)
+      Rnew[lower.tri(Rnew, diag = TRUE)] <- ""
+      Rnew <- as.data.frame(Rnew)
+    }
+    
+    ## remove last column and return the correlation matrix
+    Rnew <- cbind(Rnew[1:length(Rnew)-1])
+    if (result[1]=="none") return(Rnew)
+    else{
+      if(result[1]=="html") print(xtable(Rnew), type="html")
+      else print(xtable(Rnew), type="latex") 
+    }
+} 
+```
+
+
+
+Once that is done, here is the actual code to get the html output. I couldn't figure out how to embed html into the knitted document, and since I don't intend to use this methodology in the future, it didn't seem like a productive rabbit hole to fall down.
+
+```{r}
+print(corstars(correlations, method=c("pearson"), result="html"), type=html, comment=FALSE)
+```
+
+p < .0001 ‘****’, p < .001 ‘***’, p < .01 '**', p < .05 '*'
+
+
+### Finishing up
+
+Somehow, this is worse than cleaning data. R seems great for making graphs, but I think I'll use word to make all of my tables from now on. I wanted to clean up my SEM plots here too, but they were truly a nightmare, and even you said you make them in Powerpoint (which is what I did for my thesis). So, I think a major takeaway has been there's a lot of tasks I don't like doing in R.

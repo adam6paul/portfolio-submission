@@ -1,5 +1,223 @@
 ---
-title: "Portfolio 7"
+title: "Porfolio 7 - Graphing Study 2"
+author: "Adam"
+date: "5/5/2022"
+output: html_document
 ---
 
-> The projects should be numbered consecutively (i.e., in the order in which you began them), and should include for each project a description of the goal, the product (computer program, hand graph, computer graph, etc.), the data, and some interpretation. Reports must be reproducible and of high quality in terms of writing, grammar, presentation, etc.
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+> The goal of this portfolio is to create graphs to display the findings from Study 2.
+
+## Setting up
+
+```{r packages, echo=TRUE, message=FALSE}
+library('reshape2')
+library('ggplot2')
+library('dplyr')
+library('Rcpp')
+library('readr')
+library('tidyverse')
+library('psych')
+library('emmeans')
+```
+
+### Bringing in the data
+
+```{r loading data, echo=TRUE, collapse=TRUE, message=FALSE}
+study1 <- read_csv("Study2_data_R_cleaned.csv")
+
+# Ensuring the dataframe is a tibble.
+as_tibble(study1)
+
+#Taking a look at the table.
+View(study1)
+```
+
+The code below subsets the data that I'm working with only to the parts I'm interested in. As well, it renames the condition variable to be easier to understand, and ensures that it is a factor.
+
+```{r smaller data to work with}
+study1_graph <- study1 %>%
+        select(class_belong_comp4, school_belong_comp4, motiv_intrins_comp2, motiv_util_comp3, close_comp3, quiz_average,  condition)
+
+study1_graph$condition = factor(study1_graph$condition,
+                                levels = c(0,1,2),
+                                labels = c("Control", "Prompted discussion", "Prompted disclosure")
+                                )
+```
+
+## Creating graphs
+
+I want to create bar graphs for each of the variables of interest. We created graphs that I used for my thesis, so my goal is going to be to recreate those. Specifically; Closeness, Institutional belonging, Class belonging, Intrinsic motivation, Utility motivation, and Quiz performance.
+
+I will be using a lot of code in my graphs, so I've gone and made some shortcuts to plug in as I go. This idea was taken from the Youtube channel "Statistics of Doom". The point is to save me a lot of extra code typing that I could mess up, and to make the code look a little nicer.
+
+```{r graph formatting code}
+vis_col =   
+  scale_fill_manual(values = c( #Color codes for the conditions.
+    "Control" = "#fece3d",
+    "Prompted discussion" = "#fd8d3c",
+    "Prompted disclosure" = "#31a354"))
+
+vis_theme =  theme(panel.background = element_blank(), #makes the background invisible
+                   panel.grid.major.y = element_line(color = "#DAE1E7"), #makes the y-axis gridlines appear, but not x-axis
+axis.line = element_line(color = "black")) #makes the axis appear in a dark black color
+
+vis_text =     theme( #trbl are the margin signs, top, right, bottom, left
+    plot.title = element_text(size = 20, margin = margin(b = 5)),
+    plot.subtitle = element_text(size = 12, margin = margin(b= 10)),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 16, hjust = 1),    
+    axis.title.x = element_text(margin = margin(t = 10)),
+    axis.title.y = element_text(margin = margin(r = 10)),
+    axis.text.y = element_text(margin = margin(r = 5)),
+    axis.text.x = element_text(margin = margin(t = 5)),
+  )
+```
+
+
+### Closeness
+
+Below was the first successful version of the graph that I made. Very basic. Also, very wrong.
+
+```{r first closeness graph}
+ggplot(data = study1_graph, mapping = aes(x = condition, y= close_comp3)) +
+  geom_bar(position= position_dodge(), stat= 'identity') 
+```
+
+
+After a lot of iteration, I got to this. The code is much more complex, and it pretty closely mirrors the graphs we actually used in my thesis. Explanations of the code are in-line.
+
+
+```{r closeness graph}
+ggplot(data = study1_graph, aes(x = condition, y= close_comp3, fill = condition)) + #Fill is starting the color code nonsense
+  stat_summary(fun = mean, geom= "bar") + #This is making it measure the mean on the y-axis
+  stat_summary(fun.data = mean_cl_normal, geom= "errorbar", width =.2, inherit.aes = TRUE)+ #mean_cl_normal and geom are making the error bars appear, inherit.aes makes it copy the aes from the beginning, e.g, fill
+  guides(fill = FALSE) + # Allows the aes colors to be done manually.
+  scale_y_continuous(limits = c(0, 5)) + #Affixes the scale to the full range of the measure
+  vis_col + #This, vis_theme, and vis_text are shortcuts. See above.
+  vis_theme + 
+  labs(x = "Condition",
+  y= NULL,
+  title= "Closeness",
+  subtitle= "Scale (1-5)") + # The terminology for the labels
+  annotate("text", x="Control", y=1, label= "2.80", size=5) + #these lines add the means to the graph
+  annotate("text", x= "Prompted discussion", y=1, label= "2.65", size=5) +
+  annotate("text", x= "Prompted disclosure", y=1, label= "2.93", size=5) +
+  vis_text
+```
+
+For the next graphs, I am wantonly stealing this code and making the modifications for each variable.
+
+### School belonging
+
+```{r school belonging graph}
+ggplot(data = study1_graph, mapping = aes(x = condition, y= school_belong_comp4, fill = condition)) + 
+  stat_summary(fun = mean, geom= "bar") + 
+  stat_summary(fun.data = mean_cl_normal, geom= "errorbar", width =.2, inherit.aes = TRUE)+ 
+  guides(fill = FALSE) + 
+  scale_y_continuous(limits = c(0, 7)) +
+  vis_col + 
+  vis_theme + 
+  labs(x = "Condition",
+  y= NULL,
+  title= "School belonging",
+  subtitle= "Scale (1-7)") + 
+  annotate("text", x="Control", y=1, label= "5.34", size=5) +
+  annotate("text", x= "Prompted discussion", y=1, label= "5.70", size=5) +
+  annotate("text", x= "Prompted disclosure", y=1, label= "5.41", size=5) +
+  vis_text
+```
+
+
+### Class belonging
+
+```{r class belonging graph}
+ggplot(data = study1_graph, mapping = aes(x = condition, y= class_belong_comp4, fill = condition)) + 
+  stat_summary(fun = mean, geom= "bar") + 
+  stat_summary(fun.data = mean_cl_normal, geom= "errorbar", width =.2, inherit.aes = TRUE)+ 
+  guides(fill = FALSE) + 
+  scale_y_continuous(limits = c(0, 7)) +
+  vis_col + 
+  vis_theme + 
+  labs(x = "Condition",
+  y= NULL,
+  title= "Class belonging",
+  subtitle= "Scale (1-7)") + 
+  annotate("text", x="Control", y=1, label= "5.47", size=5) +
+  annotate("text", x= "Prompted discussion", y=1, label= "6.08", size=5) +
+  annotate("text", x= "Prompted disclosure", y=1, label= "5.49", size=5) +
+  vis_text
+```
+
+
+
+### Intrinsic motivation
+
+```{r intrinsic motivation graph}
+ggplot(data = study1_graph, mapping = aes(x = condition, y= motiv_intrins_comp2, fill = condition)) + 
+  stat_summary(fun = mean, geom= "bar") + 
+  stat_summary(fun.data = mean_cl_normal, geom= "errorbar", width =.2, inherit.aes = TRUE)+ 
+  guides(fill = FALSE) + 
+  scale_y_continuous(limits = c(0, 5)) +
+  vis_col + 
+  vis_theme + 
+  labs(x = "Condition",
+  y= NULL,
+  title= "Subject Area Motivation: Intrinsic",
+  subtitle= "Scale (1-5)") + 
+  annotate("text", x="Control", y=1, label= "3.45", size=5) +
+  annotate("text", x= "Prompted discussion", y=1, label= "3.70", size=5) +
+  annotate("text", x= "Prompted disclosure", y=1, label= "3.47", size=5) +
+  vis_text
+```
+
+### Utility motivation
+
+```{r utility motivation graph}
+ggplot(data = study1_graph, mapping = aes(x = condition, y= motiv_util_comp3, fill = condition)) + 
+  stat_summary(fun = mean, geom= "bar") + 
+  stat_summary(fun.data = mean_cl_normal, geom= "errorbar", width =.2, inherit.aes = TRUE)+ 
+  guides(fill = FALSE) + 
+  scale_y_continuous(limits = c(0, 5)) +
+  vis_col + 
+  vis_theme + 
+  labs(x = "Condition",
+  y= NULL,
+  title= "Subject Area Motivation: Utility",
+  subtitle= "Scale (1-5)") + 
+  annotate("text", x="Control", y=1, label= "3.27", size=5) +
+  annotate("text", x= "Prompted discussion", y=1, label= "3.76", size=5) +
+  annotate("text", x= "Prompted disclosure", y=1, label= "3.55", size=5) +
+  vis_text
+```
+
+### Quiz performance
+
+This one required a change to the scale, since it is a grade, meaning the scale needed to run from 0 to .9
+
+```{r quiz performance graph}
+ggplot(data = study1_graph, mapping = aes(x = condition, y= quiz_average, fill = condition)) + 
+  stat_summary(fun = mean, geom= "bar") + 
+  stat_summary(fun.data = mean_cl_normal, geom= "errorbar", width =.2, inherit.aes = TRUE)+ 
+  guides(fill = FALSE) + 
+  scale_y_continuous(limits = c(0, .9)) +
+  vis_col + 
+  vis_theme + 
+  labs(x = "Condition",
+  y= NULL,
+  title= "Quiz Performance",
+  subtitle= "Scale (1-9)") + 
+  annotate("text", x="Control", y=.20, label= "6.91", size=5) +
+  annotate("text", x= "Prompted discussion", y=.20, label= "7.14", size=5) +
+  annotate("text", x= "Prompted disclosure", y=.20, label= "7.12", size=5) +
+  vis_text
+```
+
+
+## Finishing up
+
+This code served as an excellent test-bed in making graphs in a way different from what we have done in class, and also showed me about piping in code that I wrote myself.
+
