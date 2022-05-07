@@ -2,9 +2,50 @@
 title: "My Portfolio"
 ---
 
+I couldn't tell you if this part works.
+
 This website hosts my [portfolio](https://datascience4psych.github.io/DataScience4Psych/guidance.html#portfolio) and [accompanying documentation](https://datascience4psych.github.io/DataScience4Psych/guidance.html#documenting-your-project) that I developed as part of [Data Science for Psychologists](https://datascience4psych.github.io/DataScience4Psych/). You can find the links to individual portfolio pieces in the header. Each piece has a description of the goal, the product (computer program, hand graph, computer graph, etc.), the data, and some interpretation. I encourage you to explore them.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus eu tortor ac lectus vestibulum imperdiet eget nec elit. Nam enim elit, condimentum vel vulputate et, bibendum id leo. Nam faucibus enim nec libero auctor finibus. Integer eu nisl a leo commodo interdum vel eu augue. Fusce gravida enim non augue porttitor malesuada. Integer tempor mattis quam at scelerisque. Sed scelerisque tristique gravida. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae;
+Since I have no clue how to make the above part work, I'm going to link to the individual repos for each portfolio below:
 
-Vivamus non faucibus erat. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Proin facilisis nunc non tristique molestie. Ut semper laoreet dignissim. Integer venenatis augue quis metus finibus rhoncus. Praesent et metus auctor, tempus magna ac, euismod purus. Sed nulla augue, maximus vel convallis viverra, interdum et nulla. Aenean neque magna, varius vitae mi sed, consequat lobortis quam.
+
+Portfolio 1:
+
+https://github.com/adam6paul/Portfolio-1.git
+
+Portfolio 2:
+
+https://github.com/adam6paul/portfolio-2.git
+
+Portfolio 3:
+
+https://github.com/adam6paul/portfolio-3.git
+
+Portfolio 4:
+
+https://github.com/adam6paul/portfolio-4.git
+
+Portfolio 5:
+
+https://github.com/adam6paul/portfolio-5.git
+
+Portfolio 6:
+
+https://github.com/adam6paul/portfolio-6.git
+
+Portfolio 7:
+
+https://github.com/adam6paul/portfolio-7.git
+
+Portfolio 8:
+
+https://github.com/adam6paul/portfolio-8.git
+
+Portfolio 9:
+
+https://github.com/adam6paul/portfolio-9.git
+
+Portfolio 10:
+
+https://github.com/adam6paul/portfolio-10.git
 
